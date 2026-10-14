@@ -1,0 +1,49 @@
+name: 🐞 Reportar problema
+description: Algo não funcionou como esperado
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar! ⚠️ **Não anexe PDFs com dados pessoais ou sigilosos.**
+  - type: textarea
+    id: oque
+    attributes:
+      label: O que aconteceu?
+      description: Descreva o problema e o que você esperava que acontecesse.
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Como reproduzir
+      placeholder: |
+        1. Adicionei um PDF de 3 páginas com tabela
+        2. Escolhi o motor Docling, OCR Automático
+        3. Cliquei em Converter selecionado
+        4. Apareceu o erro ...
+    validations:
+      required: true
+  - type: dropdown
+    id: motor
+    attributes:
+      label: Motor usado
+      options: ["Rápido (PyMuPDF4LLM)", "Tabelas e layout + OCR (Docling)", "Simples (MarkItDown)", "Não sei"]
+    validations:
+      required: true
+  - type: input
+    id: tipo
+    attributes:
+      label: Tipo de PDF
+      placeholder: "ex.: nota fiscal escaneada, edital com 40 páginas, PDF gerado pelo Word"
+  - type: textarea
+    id: erro
+    attributes:
+      label: Mensagem de erro
+      description: Passe o mouse sobre o item ✖ na lista e copie o texto. Se usou o modo `--cli`, cole o `pdf2md_cli.log`.
+      render: text
+  - type: input
+    id: versao
+    attributes:
+      label: Versão do PDF2MD e do Windows
+      placeholder: "ex.: PDF2MD 1.0.0 (Ajuda → Sobre), Windows 11 24H2"

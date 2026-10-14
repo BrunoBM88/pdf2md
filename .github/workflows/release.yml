@@ -1,0 +1,63 @@
+# Compila o PDF2MD.exe e anexa o .zip à Release quando uma tag v* é publicada (ex.: v1.0.1).
+# Também pode ser disparado manualmente em Actions → Release → Run workflow (só gera o artefato).
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Instalar dependências
+        run: |
+          python -m venv .venv
+          .venv\Scripts\python -m pip install --upgrade pip
+          .venv\Scripts\pip install -r requirements.txt pyinstaller==6.22.3
+
+      - name: Compilar
+        run: .venv\Scripts\python -m PyInstaller PDF2MD.spec --noconfirm
+
+      - name: Testar o .exe (motor rápido, PDF de exemplo)
+        shell: pwsh
+        run: |
+          $p = Start-Process dist\PDF2MD\PDF2MD.exe -ArgumentList "--cli","docs\exemplo\exemplo-lorem-ipsum.pdf","--saida","teste" -PassThru -Wait
+          Get-Content teste\pdf2md_cli.log
+          if ($p.ExitCode -ne 0) { exit 1 }
+
+      - name: Montar o pacote
+        shell: pwsh
+        run: |
+          $ver = if ($env:GITHUB_REF_TYPE -eq "tag") { $env:GITHUB_REF_NAME.TrimStart("v") } else { "dev" }
+          $pkg = "PDF2MD-$ver-windows"
+          New-Item -ItemType Directory $pkg | Out-Null
+          Copy-Item dist\PDF2MD "$pkg\PDF2MD" -Recurse
+          Copy-Item installer\install.ps1, installer\uninstall.ps1, installer\Instalar.bat, LICENSE $pkg
+          Compress-Archive $pkg "$pkg.zip" -CompressionLevel Optimal
+          "PKG=$pkg" >> $env:GITHUB_ENV
+          "{0:N0} MB" -f ((Get-Item "$pkg.zip").Length / 1MB)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PKG }}
+          path: ${{ env.PKG }}.zip
+
+      - name: Publicar na Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.PKG }}.zip
+          body_path: docs/release-notes.md

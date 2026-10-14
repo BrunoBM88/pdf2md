@@ -1,0 +1,20 @@
+name: 💡 Sugerir recurso
+description: Uma ideia para melhorar o PDF2MD
+labels: ["melhoria"]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qual problema isso resolveria?
+      placeholder: "ex.: converto muitas notas fiscais e queria que o nome do .md tivesse a data"
+    validations:
+      required: true
+  - type: textarea
+    id: ideia
+    attributes:
+      label: Como você imagina que funcionaria?
+  - type: textarea
+    id: outros
+    attributes:
+      label: Algo mais?
+      description: Exemplos, prints de outros programas, links...

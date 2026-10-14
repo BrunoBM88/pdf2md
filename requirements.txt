@@ -1,0 +1,8 @@
+# Versões testadas (Windows 11, Python 3.14)
+PySide6==6.12.0
+pymupdf==1.28.2
+pymupdf4llm==1.28.2
+docling==2.138.0
+markitdown[pdf]==0.1.8
+torch==2.14.1
+torchvision==0.29.1
